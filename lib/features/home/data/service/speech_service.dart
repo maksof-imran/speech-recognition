@@ -1,98 +1,60 @@
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class SpeechService {
-  late stt.SpeechToText _speechToText;
-  String _currentTranscription = '';
-  final Map<String, String> _keywordToVideo = {
-    'on': 'assets/videos/sample.mp4',
-    'of ': 'assets/videos/sample2.mp4',
-  };
-  final List<String> _videoQueue = [];
-  bool _isListening = false;
+  final _speech = SpeechToText();
+  bool _isAvailable = false;
+  bool _forceStop = false;
+  Function(String text)? onTextResult;
+  Function(String status)? onStatus;
 
-  SpeechService() {
-    _speechToText = stt.SpeechToText();
-  }
-
-  Future<void> initialize() async {
-    bool available = await _speechToText.initialize(
-      onStatus: _onStatus,
-      onError: _onError,
+  Future<void> init() async {
+    _isAvailable = await _speech.initialize(
+      onStatus: _statusListener,
+      onError: _errorListener,
     );
-    if (available) {
-      startListening();
-    }
-  }
-
-  void _onStatus(String status) {
-    print('Speech status: $status');
-    if (status == 'notListening' && _isListening) {
-      Future.delayed(Duration(milliseconds: 500), () {
-        if (!_speechToText.isListening) {
-          startListening();
-        }
-      });
-    }
-  }
-
-  void _onError(error) {
-    print('Speech error: $error');
-    // Optional: restart listening on error
-    if (_isListening) {
-      Future.delayed(Duration(seconds: 1), () {
-        if (!_speechToText.isListening) {
-          startListening();
-        }
-      });
-    }
   }
 
   void startListening() {
-    if (!_speechToText.isListening) {
-      _speechToText.listen(
-        onResult: (result) {
-          _currentTranscription = result.recognizedWords.toLowerCase();
-          print(result);
-          _checkKeywords();
-        },
-        listenMode: stt.ListenMode.dictation,
-        partialResults: true,
-        pauseFor: const Duration(seconds: 5),
-        listenFor: const Duration(seconds: 30),
-      );
-      _isListening = true;
-    }
-  }
+    if (!_isAvailable || _forceStop) return;
 
-  void _checkKeywords() {
-    for (var keyword in _keywordToVideo.keys) {
-      if (_currentTranscription.contains(keyword)) {
-        _addToQueue(_keywordToVideo[keyword]!);
-        break;
-      }
-    }
-  }
-
-  void _addToQueue(String videoPath) {
-    if (!_videoQueue.contains(videoPath)) {
-      _videoQueue.add(videoPath);
-      print('Added to queue: $videoPath');
-    }
-  }
-
-  List<String> getVideoQueue() => List.from(_videoQueue);
-
-  void clearQueue() {
-    _videoQueue.clear();
+    _speech.listen(
+      onResult: (result) {
+        final text = result.recognizedWords.toLowerCase();
+        if (text.isNotEmpty) {
+          onTextResult?.call(text);
+        }
+      },
+      listenMode: ListenMode.dictation,
+      pauseFor: const Duration(seconds: 10),
+    );
   }
 
   void stopListening() {
-    _speechToText.stop();
-    _isListening = false;
+    _forceStop = true;
+    _speech.stop();
   }
 
-  void dispose() {
-    stopListening();
-    _speechToText.cancel();
+  void resumeListening() {
+    _forceStop = false;
+    startListening();
+  }
+
+  void _statusListener(String status) {
+    onStatus?.call(status);
+    if (_forceStop) return;
+
+    if (status == 'done' || status == 'notListening') {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!_forceStop) startListening();
+      });
+    }
+  }
+
+  void _errorListener(SpeechRecognitionError error) {
+    if (_forceStop) return;
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!_forceStop) startListening();
+    });
   }
 }
