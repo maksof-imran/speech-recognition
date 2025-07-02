@@ -1,0 +1,71 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/**
+
+generated_plugin_registrant.dart
+
+# Obsolete
+flutter_*.png
+
+# Web
+web/.dart_tool/
+web/build/
+
+# Android
+android/.gradle/
+android/.idea/
+android/local.properties
+android/*.iml
+android/captures/
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# iOS & macOS
+ios/.generated/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+ios/Pods/
+ios/.dart_tool/
+ios/build/
+ios/Flutter/App.framework
+ios/Flutter/engine/
+macos/.generated/
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/Flutter/Flutter.framework
+macos/Flutter/Flutter.podspec
+macos/.dart_tool/
+macos/build/
+
+# Xcode
+*.mode1v3
+*.mode2v3
+*.pbxuser
+*.xcuserstate
+*.xcworkspace
+xcuserdata/
+
+# IntelliJ related
+.idea/
+*.iml
+
+# VS Code related
+.vscode/
+
+# Files created by pub
+*.lock
+
+# Firebase crashlytics
+crashlytics-build.properties
+
+# Environment files (optional, if using env vars)
+.env
+.env.*
