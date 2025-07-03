@@ -22,8 +22,14 @@ class _SpeechWidgetState extends State<SpeechWidget> {
   final Set<String> _playedVideos = <String>{}; // Track played videos
 
   final Map<String, List<String>> videoToKeywordsMap = {
-    'assets/videos/sample.mp4': ['fever', 'bukhar', 'jwar', 'tap'], // Fever
-    'assets/videos/sample2.mp4': ['pain', 'dard', 'peeda'], // Pain
+    'assets/videos/fever.mp4': ['fever', 'bukhar', 'jwar', 'tap'], // Fever
+    'assets/videos/headech.mp4': [
+      'pain',
+      'dard',
+      'peeda',
+      'headaches',
+      'headache',
+    ], // Pain
     'assets/videos/cough.mp4': ['cough', 'khansi', 'khasi'], // Cough
     'assets/videos/headache.mp4': [
       'headache',
